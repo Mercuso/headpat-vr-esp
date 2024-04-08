@@ -5,14 +5,20 @@
 
 // wifi connection vars definition
 WiFiUDP Udp;
-#define SERVER_PORT = 4210
 char incomingPacket;
 int incomingByte;
 
 // servo vars definition
+const int SERVO_ROTATION_LIMIT = 120;
 Servo servoLeft;
 Servo servoRight;
 int pos = 0;
+int direction = 1;
+int speed_level = 0;
+// int lpos = 0;
+// int ldirection = 1;
+// int rpos = 0;
+// int rdirection = 1;
 static unsigned int left_speed_level = 0;
 static unsigned int right_speed_level = 0;
 
@@ -30,7 +36,7 @@ void blink();
 int readIncomingData();
 int getLeftSpeedLevel(int);
 int getRightSpeedLevel(int);
-void moveServos();
+void moveServosSimplified();
 
 void setup() {
   Serial.begin(9600);
@@ -47,7 +53,7 @@ void loop() {
   right_speed_level = getRightSpeedLevel(incomingByte);
   left_speed_level = getLeftSpeedLevel(incomingByte);
   if (right_speed_level || left_speed_level) {
-    moveServos();
+    moveServosSimplified();
   }
 }
 
@@ -103,6 +109,7 @@ int readIncomingData () {
     // receive incoming UDP packets
     incomingByte = Udp.read();
     if (incomingByte) {
+      Serial.print("incoming data:");
       Serial.println(incomingByte);
       return incomingByte;
     }
@@ -118,34 +125,17 @@ int getRightSpeedLevel (int incomingByte) {
   return incomingByte & 0x0F;
 }
 
-void moveServos() {
-  for (pos = 0; pos <= 180; pos += 10) {
-    if (left_speed_level > 0) {
-      Serial.print("move left f: ");
-      Serial.println(left_speed_level);
-      servoLeft.write(pos);
-    }
-    if (right_speed_level > 0) {
-      Serial.print("move righ f: ");
-      Serial.println(right_speed_level);
-      servoRight.write(pos);
-    }
-    // max delay - 55
-    // min delay - 15
-    delay(map(left_speed_level, 0, 10, 55, 15));
+void moveServosSimplified () {
+  // move servos with the same spped
+  // speed - max speed from l and r speeds
+  speed_level = max(left_speed_level, right_speed_level);
+  for (int i = 10; i<= SERVO_ROTATION_LIMIT; i+= 10) {
+    pos = (SERVO_ROTATION_LIMIT * (1-direction)/2) + i * direction;
+    servoLeft.write(pos);
+    servoRight.write(pos);
+    // Serial.print("move to pos: ");
+    // Serial.println(pos);
+    delay(map(speed_level, 0, 10, 55, 15));
   }
-
-  for (pos = 180; pos >= 0; pos -= 10) {
-    if (left_speed_level > 0) {
-      Serial.print("move left b: ");
-      Serial.println(left_speed_level);
-      servoLeft.write(pos);
-    }
-    if (right_speed_level > 0) {
-      Serial.print("move righ b: ");
-      Serial.println(right_speed_level);
-      servoRight.write(pos);
-    }
-    delay(map(left_speed_level, 0, 10, 55, 15));
-  }
+  direction *= (-1);
 }
