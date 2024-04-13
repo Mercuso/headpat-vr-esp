@@ -5,7 +5,6 @@
 
 // wifi connection vars definition
 WiFiUDP Udp;
-char incomingPacket;
 int incomingByte;
 
 // servo vars definition
@@ -22,7 +21,6 @@ int speed_level = 0;
 static unsigned int left_speed_level = 0;
 static unsigned int right_speed_level = 0;
 
-
 // indicators definition
 #define INTERNAL_LED D0 
 
@@ -37,6 +35,7 @@ int readIncomingData();
 int getLeftSpeedLevel(int);
 int getRightSpeedLevel(int);
 void moveServosSimplified();
+
 
 void setup() {
   Serial.begin(9600);
@@ -58,34 +57,36 @@ void loop() {
 }
 
 
+
 // setup functions
 void wifiConnectionInit() {
-  #if defined(WIFI_CREDS_SSID) && defined(WIFI_CREDS_PASSWD)
-    WiFi.begin(WIFI_CREDS_SSID, WIFI_CREDS_PASSWD);
+  #if defined(WIFI_SSID) && defined(WIFI_PASSWD)
+    WiFi.begin(WIFI_SSID, WIFI_PASSWD);
   #else
-    #error "Missing defines WIFI_CREDS_SSID and WIFI_CREDS_PASSWD"
+    #error "Missing defines WIFI_SSID and WIFI_PASSWD"
   #endif
  
   // Wait for connection  
-  Serial.printf("Connecting to %s ", WIFI_CREDS_SSID);
+  Serial.printf("[WIFI connection init] Connecting to %s ", WIFI_SSID);
   while (WiFi.status() != WL_CONNECTED) {   
     digitalWrite(INTERNAL_LED, LOW);
     Serial.print(".");
     delay(500);
     digitalWrite(INTERNAL_LED, HIGH);
   }
-  Serial.println(" connected");
-  Serial.print("IP address: ");
+  Serial.println();
+  Serial.println("[WIFI connection init] connected");
+  Serial.print("[WIFI connection init] IP address: ");
   Serial.println(WiFi.localIP());
 }
 
 void mdnsInit() {
   // Start the mDNS responder for patbandvr.local
   if (!MDNS.begin("patbandvr")) {
-    Serial.println("Error setting up MDNS responder!");
+    Serial.println("[MDNS init] Error setting up MDNS responder!");
   }
   MDNS.addService("http", "tcp", 80);
-  Serial.println("mDNS responder started");
+  Serial.println("[MDNS init] mDNS responder started");
 }
 
 void servoInit(){
@@ -109,8 +110,6 @@ int readIncomingData () {
     // receive incoming UDP packets
     incomingByte = Udp.read();
     if (incomingByte) {
-      Serial.print("incoming data:");
-      Serial.println(incomingByte);
       return incomingByte;
     }
   }
@@ -133,8 +132,6 @@ void moveServosSimplified () {
     pos = (SERVO_ROTATION_LIMIT * (1-direction)/2) + i * direction;
     servoLeft.write(pos);
     servoRight.write(pos);
-    // Serial.print("move to pos: ");
-    // Serial.println(pos);
     delay(map(speed_level, 0, 10, 55, 15));
   }
   direction *= (-1);
