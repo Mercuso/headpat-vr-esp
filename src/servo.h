@@ -3,8 +3,8 @@
 
 #include <ESP32Servo.h>
 
-#define servo_left_pin 26
-#define servo_right_pin 27
+#define servo_left_pin 12
+#define servo_right_pin 14
 
 void servoInit();
 

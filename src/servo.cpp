@@ -11,7 +11,7 @@ void servoInit(){
     servoLeft.attach(servo_left_pin);
     servoRight.attach(servo_right_pin);
     servoLeft.write(0);
-    servoRight.write(0);
+    servoRight.write(SERVO_ROTATION_ANGLE);
     delay(500);
   #else
     #error "Missing define SERVO_ROTATION_ANGLE"
@@ -32,7 +32,7 @@ void moveServosSimplified (int left_speed_level, int right_speed_level) {
   for (int i = 10; i<= SERVO_ROTATION_ANGLE; i += 10) {
     pos = (SERVO_ROTATION_ANGLE * (1-direction)/2) + i * direction;
     servoLeft.write(pos);
-    servoRight.write(pos);
+    servoRight.write(SERVO_ROTATION_ANGLE - pos);
     delay(map(max(left_speed_level, right_speed_level), 0, 10, 55, 15));
   }
   direction *= (-1);
