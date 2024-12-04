@@ -5,13 +5,18 @@ TaskHandle_t Task1;
 TaskHandle_t Task2;
 
 int incomingByte;
-
+uint8_t local_pong[8] = "o";
 void udpTask(void *pvParameters) {
   Udp.begin(4210);
   MDNS.addService("http", "udp", 4210);
   while (true) {
     if (Udp.parsePacket()) {
       incomingByte = Udp.read();
+      if (incomingByte == 0) {
+        Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+        Udp.write(local_pong, 1);
+        Udp.endPacket();
+      }
     } 
     else {
       incomingByte = 0;
