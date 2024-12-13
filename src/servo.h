@@ -14,4 +14,6 @@ int getRightSpeedLevel (int incomingByte);
 
 void moveServosSimplified (int left_speed_level, int right_speed_level);
 
+void rotationCycle(int left_speed_level, int right_speed_level);
+
 #endif // HEADPATVR_SERVO

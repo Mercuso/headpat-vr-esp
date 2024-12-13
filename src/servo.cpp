@@ -35,5 +35,33 @@ void moveServosSimplified (int left_speed_level, int right_speed_level) {
     servoRight.write(SERVO_ROTATION_ANGLE - pos);
     delay(map(max(left_speed_level, right_speed_level), 0, 10, 55, 15));
   }
-  direction *= (-1);
+}
+
+// new implementation
+int lDirection = 1;
+int rDirection = -1;
+
+int l_i = 10;
+int r_i = 10;
+
+void rotationCycle(int left_speed_level, int right_speed_level) {
+  if (left_speed_level) {
+    int l_pos = (SERVO_ROTATION_ANGLE * (1-lDirection)/2) + l_i * lDirection;
+    servoLeft.write(l_pos);
+    if (l_i >= SERVO_ROTATION_ANGLE) {
+      l_i = 0;
+      lDirection *= -1;
+    }
+    l_i += 10;
+  }
+  if (right_speed_level) {
+    int r_pos = (SERVO_ROTATION_ANGLE * (1-rDirection)/2) + r_i * rDirection;
+    servoRight.write(r_pos);
+    if (r_i >= SERVO_ROTATION_ANGLE) {
+      r_i = 0;
+      rDirection *= -1;
+    }
+    r_i += 10;
+  }
+  delay(map(max(left_speed_level, right_speed_level), 0, 10, 55, 15));
 }

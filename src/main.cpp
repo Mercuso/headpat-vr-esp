@@ -31,12 +31,21 @@ void servoTask(void *pvParameters) {
     int left_speed_level = getLeftSpeedLevel(incomingByte);
 
     if (right_speed_level || left_speed_level) {
-      moveServosSimplified(
-        left_speed_level,
-        right_speed_level
-      );
+      for (int i = 0; i < 12; i++) {
+        int new_right_speed_level = getRightSpeedLevel(incomingByte);
+        if (new_right_speed_level != right_speed_level && new_right_speed_level != 0) {
+          right_speed_level = new_right_speed_level;
+        }
+        int new_left_speed_level = getLeftSpeedLevel(incomingByte);
+        if (new_left_speed_level != left_speed_level && new_left_speed_level != 0) {
+          left_speed_level = new_left_speed_level;
+        }
+        rotationCycle(
+          left_speed_level,
+          right_speed_level
+        );
+      }
     }
-    delay(10);
   }
 }
 
